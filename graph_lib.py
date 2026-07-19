@@ -21,7 +21,10 @@ TAU = 30.0  # days (legacy wall-clock constant; superseded by TAU_TICKS)
 # not calendar days. If the agent is OFF, no ticks pass → memory freezes (no decay).
 TAU_TICKS = 50
 
-GRAPH_PATH = os.path.join(os.path.dirname(__file__), "concept_graph.json")
+GRAPH_PATH = os.environ.get(
+    "COGRAM_GRAPH",
+    os.path.join(os.path.dirname(__file__), "concept_graph.json"),
+)
 
 # --- English stopwords (~150) ---
 EN_STOP = frozenset(
