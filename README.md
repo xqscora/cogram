@@ -41,7 +41,8 @@ python swe_recall_demo.py         # asks a new question, shows what it recalls a
 ## Results, briefly
 
 - 600 real SWE-agent trajectories, 184k lines, ~2.5M tokens → concept graph is 4.5x smaller than the raw text, and costs 0 LLM tokens to build.
-- Recalling a fix for a new problem costs ~150–280 tokens and points to the exact `file:line` of the original fix — about 7,000–17,000x smaller than re-reading the whole history.
+- Recalling a fix for a new problem costs ~150–400 tokens and points to the exact `file:line` of the original fix — about 7,000–16,000x smaller than re-reading the whole history.
+- That routing is measured, not cherry-picked: 150 sampled queries, checking whether the top recall lands in the *same repo* as the bug report — **43.3% top-1 vs. a 2.9% random-chance baseline** (~15x over chance), zero LLM calls. See `benchmark_procedural_precision_results.md`, including a real bug (a boilerplate hub-word problem) we found and fixed while measuring it.
 - On LongMemEval (ICLR 2025, a standard long-term conversational memory benchmark, not our home turf), a BM25-ranked version of this graph ties the best lexical retriever on accuracy at ~45x fewer tokens. Full numbers in `benchmark_longmem_results.md` and `benchmark_budget_sweep_results.md` — including where it does *not* win, we left that in.
 
 ## License

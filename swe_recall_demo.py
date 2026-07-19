@@ -49,6 +49,23 @@ def pointer_relevance(query_tokens: List[str], text: str) -> float:
     return float(len(hits))
 
 
+def idf_weight(df: int, n_docs: int) -> float:
+    """Standard inverse-document-frequency discount, computed purely from the
+    concept's own measured document frequency vs corpus size — no fixed
+    cutoff/blacklist. A concept that appears in every trajectory (df==n_docs,
+    e.g. SWE-agent's own boilerplate shell-interface tips) carries ~0 bits of
+    information about *which* trajectory is relevant, so its contribution to
+    ranking is discounted toward 0. A concept seen once keeps full weight.
+    Without this, activation score alone (which grows with df via edge
+    co-occurrence counts) lets ubiquitous boilerplate concepts drown out the
+    rare, bug-specific ones — see benchmark_procedural_precision.py."""
+    df = max(df, 1)
+    n_docs = max(n_docs, 1)
+    import math
+
+    return math.log((n_docs + 1.0) / df) / math.log(n_docs + 1.0) if n_docs > 1 else 1.0
+
+
 def collect_pointers(
     ranked: List[Tuple[str, float]],
     nodes: dict,
@@ -71,7 +88,10 @@ def collect_pointers(
             continue
         concept_order.append((c, s))
 
+    n_docs = len(files_table) or 1
     for concept, score in concept_order:
+        df = nodes.get(concept, {}).get("df", 1)
+        idf = idf_weight(df, n_docs)
         for ptr in nodes.get(concept, {}).get("pointers", []):
             fidx, lno = ptr[0], ptr[1]
             key = (fidx, lno)
@@ -89,7 +109,7 @@ def collect_pointers(
             if fname_hits == 0 and rel < 2.0:
                 continue
             seed_bonus = 2.0 if seed_concepts and concept in seed_concepts else 0.0
-            combined = score * (1.0 + seed_bonus + rel + fname_hits * 2.0)
+            combined = score * idf * (1.0 + seed_bonus + rel + fname_hits * 2.0)
             hits.append((combined, fname, lno, text))
     hits.sort(key=lambda x: x[0], reverse=True)
     return hits[:max_lines]
