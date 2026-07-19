@@ -69,6 +69,11 @@
   </div>
 
   <section class="pros-cons-strip" style="padding-bottom:0">
+    <h2>What this saves, in dollars</h2>
+    <p class="positioning-lead" style="max-width:none">The naive way to give an agent memory is to replay its history into the context window — measured at <strong>~109k tokens per question</strong> on LongMemEval. A Cogram recall is <strong>~300 tokens</strong> for the same answer quality (see benchmark below). At $3 per million input tokens, that's <strong>$0.33 vs. $0.001 per lookup</strong> — for a team running 1,000 agent memory lookups a day, roughly <strong>$120k/year vs. $330/year</strong>. And because recall is pure graph traversal with zero LLM calls, it returns in milliseconds instead of waiting on a 100k-token prompt.</p>
+  </section>
+
+  <section class="pros-cons-strip" style="padding-bottom:0">
     <h2>Use it in your own agent — one pip install</h2>
     <div class="pros-cons-grid">
       <div class="pc-col">
