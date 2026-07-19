@@ -20,6 +20,30 @@ Old, unused parts of the graph fade over time (measured in "ticks" — actual ag
 | `docs/` | Interactive graph visualization (concept map + query trace), served live at [cogram.cora.zone](https://cogram.cora.zone) via GitHub Pages |
 | `migrations/` | SQL schema for optional cloud persistence via InsForge |
 
+## Install as a package
+
+Cogram is pip-installable straight from this repo — no code changes needed to use it inside your own agent:
+
+```bash
+pip install git+https://github.com/xqscora/cogram.git
+```
+
+Then from any Python agent loop:
+
+```python
+import os
+os.environ["COGRAM_GRAPH"] = "path/to/swe_concept_graph.json"  # or your own graph
+os.environ["ENGRAM_TRANSCRIPT_DIR"] = "path/to/your/transcripts"
+
+import memory_api
+result = memory_api.recommend("dacite default_factory dataclass bug")
+# result["recommendations"] -> ranked file:line pointers with concept paths
+# result["gaps"]            -> concepts the memory doesn't know yet
+memory_api.end_turn()  # learn from this turn, advance one tick
+```
+
+A `cogram-demo` console command is also installed (same as `python swe_recall_demo.py`).
+
 ## Try it
 
 The dataset itself is **not** vendored in this repo — it's downloaded fresh from the source below, so nothing here is a private or pre-baked copy of anyone's data.
