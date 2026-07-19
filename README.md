@@ -17,7 +17,7 @@ Old, unused parts of the graph fade over time (measured in "ticks" — actual ag
 | `memory_api.py` | Agent-facing API: `recommend()` and `end_turn()`, meant to be called from inside an agent loop |
 | `swe_recall_demo.py` | Runnable demo — shows a new problem being recalled against the past-fix graph |
 | `benchmark_longmem.py`, `benchmark_qa.py`, `benchmark_bakeoff.py`, `benchmark_budget_sweep.py` | Benchmarks against BM25 and full-context baselines (see results below) |
-| `web/` | Interactive graph visualization (concept map + query trace) |
+| `docs/` | Interactive graph visualization (concept map + query trace), served live at [cogram.cora.zone](https://cogram.cora.zone) via GitHub Pages |
 | `migrations/` | SQL schema for optional cloud persistence via InsForge |
 
 ## Try it
