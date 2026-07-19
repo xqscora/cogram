@@ -111,12 +111,20 @@ body {
 /* --- Main layout --- */
 
 .main-grid {
-  flex: 1;
+  /* NOT flex:1 + min-height:0 — with more page content than 100vh, that combo
+     lets flexbox shrink this grid's margin box down to whatever scrap of space
+     is "left over" after the other body-level siblings (pros/cons, footer),
+     while its actual content (graph pane, 420px min) paints outside that box
+     and visually overlaps the next sections. Fixed min-height keeps the box
+     honest; flex-grow:1 still lets it stretch taller on tall viewports. */
+  flex-grow: 1;
+  flex-shrink: 0;
+  flex-basis: auto;
   display: grid;
   grid-template-columns: 1fr 340px;
   grid-template-rows: auto 1fr;
   gap: 0;
-  min-height: 0;
+  min-height: 520px;
 }
 
 .controls-bar {
@@ -165,6 +173,29 @@ body {
 .status-line.error {
   color: #a84a4a;
   font-variant: normal;
+}
+
+.query-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-top: 0.4rem;
+}
+
+.chip {
+  padding: 0.3rem 0.65rem;
+  font-size: 0.72rem;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  border-radius: 999px;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+}
+
+.chip:hover {
+  border-color: var(--accent);
+  color: var(--accent);
 }
 
 #query-input {
@@ -376,6 +407,73 @@ input[type="range"] {
   color: var(--accent);
 }
 
+/* --- Pros / cons strip --- */
+
+.pros-cons-strip {
+  border-top: 1px solid var(--border);
+  padding: 1.5rem 2.5rem 1.75rem;
+  background: var(--bg-alt);
+}
+
+.pros-cons-strip h2 {
+  margin: 0 0 1rem;
+  font-family: var(--serif);
+  font-size: 1.1rem;
+  font-weight: 400;
+}
+
+.pros-cons-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem 2.5rem;
+}
+
+.pc-col ul {
+  margin: 0;
+  padding-left: 1.1rem;
+  font-size: 0.85rem;
+  line-height: 1.6;
+  color: var(--text);
+}
+
+.pc-col li {
+  margin-bottom: 0.6rem;
+}
+
+.pc-col li strong {
+  color: var(--accent-dark);
+}
+
+.pc-col code {
+  font-size: 0.78rem;
+  background: rgba(0, 0, 0, 0.05);
+  padding: 0.1rem 0.3rem;
+  border-radius: 2px;
+}
+
+.pc-label {
+  font-variant: small-caps;
+  letter-spacing: 0.1em;
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+}
+
+.pc-pro .pc-label {
+  color: var(--accent);
+}
+
+.pc-con .pc-label {
+  color: #a8794a;
+}
+
+@media (max-width: 760px) {
+  .pros-cons-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 /* --- Bottom strip --- */
 
 .bottom-strip {
@@ -415,6 +513,15 @@ input[type="range"] {
 
 .results-table td.num {
   font-variant-numeric: tabular-nums;
+}
+
+.positioning-lead {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  max-width: 720px;
+  line-height: 1.5;
+  margin: 0 0 0.85rem;
+  font-style: italic;
 }
 
 .positioning {

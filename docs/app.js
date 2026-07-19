@@ -1,12 +1,12 @@
 /**
- * Engram interactive demo — zero-LLM concept-network memory.
- * Fully static; loads graph.json built by build_web_graph.py.
- * v4 — cool palette, Obsidian-style graph, hardened init + status line.
+ * Cogram interactive demo — zero-LLM procedural-memory concept graph.
+ * Fully static; loads graph.json built by build_web_graph_swe.py.
+ * v5 — procedural-memory framing (SWE-agent trajectories), pros/cons strip.
  */
 (function () {
   "use strict";
 
-  const GRAPH_VERSION = "4";
+  const GRAPH_VERSION = "5";
 
   function setStatus(msg, isError) {
     const el = document.getElementById("status-line");
@@ -179,9 +179,23 @@
       tbody.appendChild(tr);
     }
     document.getElementById("positioning-caption").innerHTML = `
-      Same accuracy as the best lexical baseline — at ~1/${Math.round(BENCHMARK.tokenRatio)}th the query tokens,
-      with compressed, decaying, provenance-linked storage.
+      On this separate benchmark, our BM25-ranked graph ties the best lexical baseline on accuracy —
+      at ~1/${Math.round(BENCHMARK.tokenRatio)}th the query tokens, with decaying, provenance-linked storage on top.
       <cite>${BENCHMARK.source}</cite>`;
+  }
+
+  function renderQueryChips(queries) {
+    const el = document.getElementById("query-chips");
+    if (!el || !queries || !queries.length) return;
+    el.innerHTML = queries
+      .map((q) => `<button type="button" class="chip" data-q="${escapeHtml(q)}">${escapeHtml(q)}</button>`)
+      .join("");
+    el.querySelectorAll(".chip").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        document.getElementById("query-input").value = btn.dataset.q;
+        runQuery();
+      });
+    });
   }
 
   function renderKnowledgeUpdate() {
@@ -195,21 +209,21 @@
     if (oldIdx != null && lineByIdx.has(oldIdx)) {
       const ln = lineByIdx.get(oldIdx);
       html += `<div class="ku-block stale">
-        <div class="ku-tag">Earlier session · tick ${ln.tick}</div>
+        <div class="ku-tag">Bug reported · trajectory tick ${ln.tick}</div>
         <div>${escapeHtml(ln.text.slice(0, 220))}${ln.text.length > 220 ? "…" : ""}</div>
-        <div class="prov-meta">${escapeHtml(ln.date)} · ${escapeHtml(ln.role)}</div>
+        <div class="prov-meta">${escapeHtml(ln.date)} · ${escapeHtml(ln.file)}:${ln.line}</div>
       </div>`;
     }
     if (newIdx != null && lineByIdx.has(newIdx)) {
       const ln = lineByIdx.get(newIdx);
       html += `<div class="ku-block fresh">
-        <div class="ku-tag">Updated · tick ${ln.tick} (stronger edges)</div>
+        <div class="ku-tag">Recalled via concept graph · tick ${ln.tick}</div>
         <div>${escapeHtml(ln.text.slice(0, 220))}${ln.text.length > 220 ? "…" : ""}</div>
-        <div class="prov-meta">${escapeHtml(ln.date)} · ${escapeHtml(ln.role)}</div>
+        <div class="prov-meta">${escapeHtml(ln.date)} · ${escapeHtml(ln.file)}:${ln.line}</div>
       </div>`;
     }
     if (!html) {
-      html = `<p class="prov-empty">Knowledge-update pair not found in export.</p>`;
+      html = `<p class="prov-empty">No bug-report / recalled-fix pair for this query — try one of the suggested queries above.</p>`;
     }
     el.innerHTML = html;
   }
@@ -466,8 +480,9 @@
       const ln = lineByIdx.get(idx);
       if (!ln) continue;
       const isAnswer = answerLineSet.has(idx);
+      const loc = ln.file ? `${ln.file}:${ln.line}` : `session ${ln.session}`;
       html += `<div class="prov-item${isAnswer ? " answer-hit" : ""}">
-        <div class="prov-meta">${escapeHtml(ln.date)} · session ${ln.session} · ${escapeHtml(ln.role)}${isAnswer ? " · traced to source" : ""}</div>
+        <div class="prov-meta">${escapeHtml(ln.date)} · ${escapeHtml(loc)}${isAnswer ? " · traced to source" : ""}</div>
         <div>${escapeHtml(ln.text.slice(0, 280))}${ln.text.length > 280 ? "…" : ""}</div>
         <div class="prov-score">activation ${score.toFixed(2)}</div>
       </div>`;
@@ -601,6 +616,7 @@
 
     document.getElementById("budget-count").textContent = meta.budget_tokens.toLocaleString();
     document.getElementById("query-input").value = DATA.demo_query || meta.question;
+    renderQueryChips(meta.demo_queries);
   }
 
   async function loadGraph() {

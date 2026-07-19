@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Cogram — Memory that forgets, but never deletes</title>
+  <title>Cogram — Procedural memory for coding agents</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
@@ -11,17 +11,17 @@
     <div class="header-row">
       <div>
         <h1>Cogram</h1>
-        <p class="subtitle">Memory that forgets, but never deletes.</p>
+        <p class="subtitle">Remembers how past bugs got fixed. Decays with use, never deletes.</p>
       </div>
       <div class="token-badge">
-        <div class="label">Query context budget</div>
+        <div class="label">Recall cost for this query</div>
         <div class="counts">
-          <span class="accent" id="budget-count">2,000</span>
+          <span class="accent" id="budget-count">160</span>
           <span> vs </span>
           <span id="raw-count">—</span>
-          <span> tokens</span>
+          <span> raw tokens</span>
         </div>
-        <span class="ratio-pill" id="ratio-pill">≈55× less</span>
+        <span class="ratio-pill" id="ratio-pill">≈15,822× less</span>
       </div>
     </div>
   </header>
@@ -29,37 +29,38 @@
   <div class="main-grid">
     <div class="controls-bar">
       <div class="control-group grow">
-        <label for="query-input">Recall query</label>
+        <label for="query-input">Recall query — try a new bug description</label>
         <div class="query-row">
           <input type="text" id="query-input" placeholder="Ask the memory graph…" autocomplete="off" />
           <button type="button" class="primary" id="query-btn">Spread</button>
         </div>
         <div class="status-line" id="status-line"></div>
+        <div class="query-chips" id="query-chips"></div>
       </div>
       <div class="control-group tick-control">
-        <label for="tick-slider">Experienced time (ticks)</label>
-        <output id="tick-value">53</output>
-        <input type="range" id="tick-slider" min="1" max="53" value="53" step="1" />
-        <span class="tick-hint">Drag forward — edges fade toward floor ε but never vanish.</span>
+        <label for="tick-slider">Experienced time (ticks = trajectories seen)</label>
+        <output id="tick-value">600</output>
+        <input type="range" id="tick-slider" min="1" max="600" value="600" step="1" />
+        <span class="tick-hint">Drag back in time — edges fade toward floor ε but never vanish.</span>
       </div>
     </div>
 
     <div class="graph-pane">
       <div id="cy"></div>
       <div class="graph-legend">
-        Faded edges = forgotten but recoverable (decay → floor ε, never zero).
+        Faded edges = forgotten but recoverable (decay → floor ε, never zero). Built from 600 real SWE-agent trajectories, zero LLM calls.
       </div>
     </div>
 
     <aside class="side-panel">
       <section class="panel-section" id="ku-section">
-        <div class="section-label">Knowledge update</div>
-        <h2>Old belief → revised fact</h2>
+        <div class="section-label">Procedural memory hit</div>
+        <h2>New bug report → recalled fix</h2>
         <div class="ku-callout" id="ku-callout"></div>
       </section>
       <section class="panel-section">
         <div class="section-label">Provenance</div>
-        <h2>Activated sources</h2>
+        <h2>Activated sources (exact file:line)</h2>
       </section>
       <div class="provenance-list" id="provenance-list">
         <p class="prov-empty">Run a query to trace concepts back to source lines.</p>
@@ -67,8 +68,35 @@
     </aside>
   </div>
 
+  <section class="pros-cons-strip">
+    <h2>Where this is strong, where it isn't</h2>
+    <div class="pros-cons-grid">
+      <div class="pc-col pc-pro">
+        <div class="pc-label">Pros</div>
+        <ul>
+          <li>Graph is built with <strong>zero LLM calls</strong> — co-occurrence + a novelty/surprise signal, not a model summarizing anything. Can't hallucinate a memory that never happened.</li>
+          <li>Forgetting has a <strong>floor, not a cliff</strong> — edges decay toward ε but are never deleted, and get re-lit the moment they're relevant again.</li>
+          <li>Decay runs on <strong>ticks (real interactions)</strong>, not wall-clock days — an idle agent's memory doesn't erode just because time passed.</li>
+          <li>Every recall points to an exact <strong>file:line</strong> in the original transcript — never a generated summary, always checkable.</li>
+          <li>~4.5× smaller on disk than raw transcripts; ~150–280 tokens per recall vs. thousands to replay full history.</li>
+        </ul>
+      </div>
+      <div class="pc-col pc-con">
+        <div class="pc-label">Cons — said plainly</div>
+        <ul>
+          <li>Not the first zero-LLM concept-graph memory — SPRIG (arXiv:2602.23372) and MemGraph-agent already proved this general approach works.</li>
+          <li>On LongMemEval, our graph's ranking <strong>ties</strong> the best lexical baseline (BM25) rather than beating it outright — see appendix below.</li>
+          <li>It can only recall what the agent actually lived through — no prior trajectory, no memory of it.</li>
+          <li>"Concept-of-concepts" (promoting a whole bug→fix pattern into one reusable node) is designed but <strong>not yet implemented</strong> — see <code>CONCEPT_OF_CONCEPTS.md</code>.</li>
+          <li>Directed "next" transitions are a first-order heuristic, not yet validated against a dedicated procedural-accuracy benchmark.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
   <footer class="bottom-strip">
-    <h2>LongMemEval benchmark (Round 3)</h2>
+    <h2>Also holds up on standard conversational-memory benchmarks (secondary evidence)</h2>
+    <p class="positioning-lead">Procedural memory is the primary claim above. This table is from a different benchmark (LongMemEval, ICLR 2025) included so the general-memory numbers are on the record too.</p>
     <table class="results-table" id="results-table">
       <thead>
         <tr>
@@ -83,6 +111,6 @@
   </footer>
 
   <script src="vendor/cytoscape.min.js"></script>
-  <script src="app.js?v=4"></script>
+  <script src="app.js?v=5"></script>
 </body>
 </html>
