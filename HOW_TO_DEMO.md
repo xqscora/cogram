@@ -1,8 +1,8 @@
 # Cogram Demo
 
-Video walkthrough coming shortly (this link will be updated to point to it).
+Video: [`docs/demo.mp4`](docs/demo.mp4) — ~35s, no audio, screen-recording style. GitHub renders it inline if you open that link.
 
-In the meantime, here is exactly what the demo shows, and you can reproduce it yourself in under a minute:
+It's a real run of the commands below, captured and played back as a terminal recording — not staged footage. Here's how to reproduce it yourself in under a minute:
 
 ```bash
 pip install -r requirements.txt
