@@ -366,6 +366,15 @@
           },
         },
         {
+          selector: "edge.route",
+          style: {
+            "line-color": ACCENT,
+            opacity: 0.75,
+            width: 1.8,
+            "z-index": 15,
+          },
+        },
+        {
           selector: "edge.hover-nb",
           style: {
             "line-color": ACCENT,
@@ -442,7 +451,7 @@
   function clearActivationVisuals() {
     if (!cy) return;
     cy.nodes().removeClass("activated seed dimmed");
-    cy.edges().removeClass("pulse dimmed");
+    cy.edges().removeClass("pulse dimmed route");
   }
 
   function renderProvenance(act) {
@@ -569,6 +578,8 @@
   }
 
   function pulseEdgesFrom(nodeIds) {
+    // Edges on the recall route stay highlighted (class "route") until the
+    // query changes or is cleared; "pulse" is only the brief flash on top.
     const touched = new Set();
     for (const id of nodeIds) {
       cy.getElementById(id)
@@ -576,7 +587,7 @@
         .forEach((e) => {
           if (!touched.has(e.id())) {
             touched.add(e.id());
-            e.removeClass("dimmed").addClass("pulse");
+            e.removeClass("dimmed").addClass("pulse route");
           }
         });
     }
@@ -598,6 +609,19 @@
     document.getElementById("query-btn").addEventListener("click", runQuery);
     document.getElementById("query-input").addEventListener("keydown", (e) => {
       if (e.key === "Enter") runQuery();
+    });
+    // Route highlight persists until the query text is edited or cleared.
+    document.getElementById("query-input").addEventListener("input", (e) => {
+      if (spreadTimer) {
+        clearTimeout(spreadTimer);
+        spreadTimer = 0;
+      }
+      clearActivationVisuals();
+      if (!e.target.value.trim()) {
+        setStatus("");
+        document.getElementById("provenance-list").innerHTML =
+          `<p class="prov-empty">Run a query to trace concepts back to source lines.</p>`;
+      }
     });
   }
 
