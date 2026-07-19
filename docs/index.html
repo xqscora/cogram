@@ -105,7 +105,7 @@ memory_api.end_turn()              # end of turn: learn + tick</code></pre>
           <li>Forgetting has a <strong>floor, not a cliff</strong> — edges decay toward ε but are never deleted, and get re-lit the moment they're relevant again.</li>
           <li>Decay runs on <strong>ticks (real interactions)</strong>, not wall-clock days — an idle agent's memory doesn't erode just because time passed.</li>
           <li>Every recall points to an exact <strong>file:line</strong> in the original transcript — never a generated summary, always checkable.</li>
-          <li>~4.5× smaller on disk than raw transcripts; ~150–400 tokens per recall vs. thousands to replay full history.</li>
+          <li>~4.4× smaller on disk than raw transcripts; ~150–400 tokens per recall vs. thousands to replay full history.</li>
           <li>Routing is measured, not cherry-picked: <strong>43.3% top-1 same-repo recall vs. 2.9% chance (~15×)</strong> on 150 sampled bug reports, zero LLM calls — see <code>benchmark_procedural_precision_results.md</code>.</li>
         </ul>
       </div>
@@ -115,7 +115,7 @@ memory_api.end_turn()              # end of turn: learn + tick</code></pre>
           <li>Not the first zero-LLM concept-graph memory — SPRIG (arXiv:2602.23372) and MemGraph-agent already proved this general approach works.</li>
           <li>On LongMemEval, our graph's ranking <strong>ties</strong> the best lexical baseline (BM25) rather than beating it outright — see appendix below.</li>
           <li>It can only recall what the agent actually lived through — no prior trajectory, no memory of it.</li>
-          <li>"Concept-of-concepts" (promoting a whole bug→fix pattern into one reusable node) is designed but <strong>not yet implemented</strong> — see <code>CONCEPT_OF_CONCEPTS.md</code>.</li>
+          <li>"Concept-of-concepts" (promoting a whole bug→fix pattern into one reusable node) is <strong>implemented and mining real motifs</strong> (32 on the current corpus, reinforced across 87 distinct trajectories) — but <strong>not yet wired into live recall or the benchmarks</strong>, so it doesn't move today's numbers. See <code>CONCEPT_OF_CONCEPTS.md</code>.</li>
           <li>Directed "next" transitions are still a first-order heuristic — the precision benchmark validates <em>which line</em> gets recalled, not yet whether the "next step" ordering itself is correct.</li>
         </ul>
       </div>

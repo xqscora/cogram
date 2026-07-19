@@ -41,3 +41,6 @@ _demo_hit.txt
 .roo
 .trae
 .windsurf
+
+# pip install -e build artifact
+cogram.egg-info/

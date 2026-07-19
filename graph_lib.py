@@ -21,11 +21,7 @@ TAU = 30.0  # days (legacy wall-clock constant; superseded by TAU_TICKS)
 # not calendar days. If the agent is OFF, no ticks pass → memory freezes (no decay).
 TAU_TICKS = 50
 
-# Override with COGRAM_GRAPH to point at any graph file (e.g. swe_concept_graph.json).
-GRAPH_PATH = os.environ.get(
-    "COGRAM_GRAPH",
-    os.path.join(os.path.dirname(__file__), "concept_graph.json"),
-)
+GRAPH_PATH = os.path.join(os.path.dirname(__file__), "concept_graph.json")
 
 # --- English stopwords (~150) ---
 EN_STOP = frozenset(
@@ -197,6 +193,116 @@ def hebbian_delta(is_first: bool, n_prev: int) -> float:
     if is_first:
         return 1.0  # statistical prediction error
     return 0.3 / (1.0 + n_prev)
+
+
+def mine_motifs(
+    lines_data: List[Tuple[str, int, int, List[str]]],
+    concepts: Set[str],
+    edge_data: Dict[Tuple[str, str], dict],
+    hub_concepts: Optional[Set[str]] = None,
+    window: int = 15,
+    min_coactive: int = 3,
+    max_coactive: int = 10,
+    max_motifs: int = 300,
+) -> Dict[Tuple[str, ...], dict]:
+    """Level-1 concept-of-concepts: recurring co-active clusters of level-0
+    concepts, generalized across DISTINCT files (not just repeated lines in
+    one file — that would just be local repetition). Reuses `hebbian_delta`
+    for both minting and reinforcement — no new decay or surprise math.
+
+    Design: Cogram's own `CONCEPT_OF_CONCEPTS.md`. Mint threshold is a
+    self-calibrating median of THIS corpus's own motif-surprise distribution,
+    not a hand-picked number. `max_motifs` is the same kind of hard resource
+    cap as `MAX_CONCEPTS` for level-0 — it trims by weight, it never gates
+    which motifs get a chance to be minted in the first place.
+
+    Returns: {motif_key (sorted tuple of member concept ids): {
+        members, order, w_raw, n_files, first_tick, last_tick, provenance
+    }}
+    """
+    n = len(lines_data)
+    hub_concepts = hub_concepts or set()
+    # Boilerplate/template words (the same "hub" concepts already excluded by
+    # the IDF discount at line-level retrieval, see swe_recall_demo.py) recur
+    # on nearly every line and would otherwise glue unrelated windows into one
+    # giant meaningless cluster instead of a small, specific problem->fix motif.
+    motif_pool = concepts - hub_concepts
+    raw_candidates: List[Tuple[float, str, int, int, frozenset, tuple]] = []
+
+    def surprise(members: Iterable[str]) -> float:
+        members = sorted(members)
+        ws = [
+            edge_data[edge_key(a, b)]["w_raw"]
+            for i, a in enumerate(members)
+            for b in members[i + 1 :]
+            if edge_key(a, b) in edge_data
+        ]
+        return sum(ws) / len(ws) if ws else 0.0
+
+    for idx in range(n):
+        fname, lno, tick, toks = lines_data[idx]
+        present_here = {t for t in toks if t in motif_pool}
+        if len(present_here) < min_coactive:
+            continue
+        lo, hi = max(0, idx - window), min(n, idx + window + 1)
+        order: List[str] = []
+        seen: Set[str] = set()
+        for j in range(lo, hi):
+            f2, _l2, _t2, toks2 = lines_data[j]
+            if f2 != fname:
+                continue
+            for tok in toks2:
+                if tok in motif_pool and tok not in seen:
+                    seen.add(tok)
+                    order.append(tok)
+        if len(seen) < min_coactive or len(seen) > max_coactive:
+            # Chase & Simon (1973): experts chunk into ~6 recognized configurations,
+            # not dozens of loose items — a window this diffuse isn't a clean chunk.
+            continue
+        raw_candidates.append((surprise(seen), fname, lno, tick, frozenset(seen), tuple(order)))
+
+    if not raw_candidates:
+        return {}
+
+    surprises = sorted(c[0] for c in raw_candidates)
+    median = surprises[len(surprises) // 2]
+
+    motifs: Dict[Tuple[str, ...], dict] = {}
+    files_seen: Dict[Tuple[str, ...], Set[str]] = {}
+
+    for s, fname, lno, tick, fs, order in raw_candidates:
+        if s < median:
+            continue  # self-calibrating cutoff, derived from this corpus's own distribution
+        key = tuple(sorted(fs))
+        first_time_overall = key not in motifs
+        if first_time_overall:
+            motifs[key] = {
+                "members": list(key),
+                "order": list(order),
+                "w_raw": s,  # minted at its own motif-surprise score, not a fixed 1.0
+                "n_files": 0,
+                "first_tick": tick,
+                "last_tick": tick,
+                "provenance": [],
+            }
+            files_seen[key] = set()
+
+        m = motifs[key]
+        if fname not in files_seen[key]:
+            if not first_time_overall:
+                m["w_raw"] += hebbian_delta(is_first=False, n_prev=m["n_files"])
+            m["n_files"] += 1
+            files_seen[key].add(fname)
+
+        m["last_tick"] = max(m["last_tick"], tick)
+        if len(m["provenance"]) < 30:
+            m["provenance"].append([fname, lno])
+
+    if len(motifs) > max_motifs:
+        ranked = sorted(motifs.items(), key=lambda kv: kv[1]["w_raw"], reverse=True)
+        motifs = dict(ranked[:max_motifs])
+
+    return motifs
 
 
 def estimate_tokens(text_or_len) -> int:

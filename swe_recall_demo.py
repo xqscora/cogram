@@ -151,6 +151,42 @@ def run_query(
     print(f"  Top activated concepts: {', '.join(c for c, _ in ranked[:5])}")
 
 
+def run_motif_demo(motifs: dict, files_table: List[str], query_tokens: List[str]) -> None:
+    """Show a level-1 concept-of-concepts hit: one node standing in for a
+    whole recurring problem-solution cluster, instead of the retriever
+    re-discovering that cluster from separate token activations each time.
+    Independent of recall.py's live spreading path — this only demonstrates
+    that the motifs exist and generalize across distinct trajectories."""
+    if not motifs:
+        print("  No motifs mined.")
+        return
+    qset = set(query_tokens)
+    scored = []
+    for key, m in motifs.items():
+        overlap = len(qset & set(m["members"]))
+        if overlap >= 2:
+            scored.append((overlap, m["n_files"], key, m))
+    if not scored:
+        # fall back to the highest-reinforced motif overall, just to show the shape
+        key, m = max(motifs.items(), key=lambda kv: kv[1]["n_files"])
+        scored = [(0, m["n_files"], key, m)]
+    scored.sort(key=lambda t: (t[0], t[1]), reverse=True)
+    _overlap, n_files, key, m = scored[0]
+
+    member_str = " + ".join(m["members"])
+    order_str = " -> ".join(m["order"][:6])
+    print(f"  Motif: {{{member_str}}}")
+    print(f"  Seen together across {n_files} distinct trajectories (not just repeated lines in one file)")
+    print(f"  Typical order: {order_str}")
+    for fid, lno in m["provenance"][:3]:
+        fname = files_table[fid] if isinstance(fid, int) and 0 <= fid < len(files_table) else str(fid)
+        text = read_line(fname, lno)
+        print(f"    [{fname}:{lno}] {text}")
+    single_motif_tokens = estimate_tokens(f"Motif: {member_str} -> {order_str}")
+    print(f"  Recalling the whole cluster as ONE node costs ~{single_motif_tokens} tokens")
+    print("  (vs. re-discovering the same cluster by spreading through each member token separately)")
+
+
 def main():
     if not os.path.isfile(GRAPH_PATH):
         print(f"Missing {GRAPH_PATH} — run extract_swe.py first.")
@@ -159,6 +195,7 @@ def main():
     graph = load_graph(GRAPH_PATH)
     nodes = graph.get("nodes", {})
     edges = graph.get("edges", [])
+    motifs = graph.get("motifs", {})
     meta = graph.get("meta", {})
     if not nodes:
         print("Graph empty.")
@@ -184,6 +221,10 @@ def main():
         print(f"--- Demo {i} ---")
         run_query(q, nodes, adj, children_map, files_table, current_tick)
         print()
+
+    print(f"--- Demo 4: concept-of-concepts (level-1 motif, {len(motifs)} mined) ---")
+    run_motif_demo(motifs, files_table, tokenize(DEMO_QUERIES[1]))
+    print()
 
 
 if __name__ == "__main__":

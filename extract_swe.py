@@ -17,6 +17,7 @@ from graph_lib import (
     edge_key,
     generality,
     hebbian_delta,
+    mine_motifs,
     parse_date_from_filename,
     save_graph,
     estimate_tokens,
@@ -264,9 +265,25 @@ def main():
         nd.pop("neighbors", None)
         nd["generality"] = round(nd["generality"], 4)
 
+    print("Mining level-1 motifs (concept-of-concepts)...")
+    motifs = mine_motifs(lines_data, concepts, edge_data, hub_concepts=hub_set)
+    motifs_out = {
+        "|".join(key): {
+            "members": m["members"],
+            "order": m["order"],
+            "w_raw": round(m["w_raw"], 4),
+            "n_files": m["n_files"],
+            "first_tick": m["first_tick"],
+            "last_tick": m["last_tick"],
+            "provenance": [[fid(fn), ln] for fn, ln in m["provenance"]],
+        }
+        for key, m in motifs.items()
+    }
+
     graph = {
         "nodes": nodes,
         "edges": edges,
+        "motifs": motifs_out,
         "meta": {
             "tick": meta_tick,
             "n_files": len(files),
@@ -289,6 +306,7 @@ def main():
     print(f"Lines:     {n_lines}")
     print(f"Concepts:  {len(nodes)}")
     print(f"Edges:     {len(edges)}")
+    print(f"Motifs:    {len(motifs_out)} (level-1 concept-of-concepts, {sum(m['n_files'] for m in motifs.values())} distinct-file reinforcements)")
     print(f"Hubs:      {n_hubs}")
     print(f"Index:     ~{index_tokens:,} tokens ({len(index_json):,} chars)")
     print(f"Raw corpus:~{raw_tokens:,} tokens ({raw_chars:,} chars)")

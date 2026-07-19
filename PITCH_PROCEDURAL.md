@@ -30,7 +30,7 @@ A **procedural-memory substrate**: it reads an agent's past work (trajectories: 
 
 **Corpus:** 600 *successful* real GitHub-issue fixes from **`nebius/SWE-agent-trajectories`** (CC-BY 4.0) — 184,177 lines, ~2.53M tokens of "how work actually got done."
 
-**Learned with 0 LLM tokens** → concept graph: 2,000 concepts, 34,385 edges, **4.5× compression** (index ~566k tokens vs raw 2.53M).
+**Learned with 0 LLM tokens** → concept graph: 2,000 concepts, 34,385 edges, plus 32 level-1 "concept-of-concepts" motifs (recurring problem→fix clusters, reinforced across 87 distinct trajectories — see `CONCEPT_OF_CONCEPTS.md`), **4.4× compression** (index ~569k tokens vs raw 2.53M).
 
 **Then a new problem comes in.** Cogram recalls the past fix:
 
