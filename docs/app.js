@@ -578,19 +578,17 @@
   }
 
   function pulseEdgesFrom(nodeIds) {
-    // Edges on the recall route stay highlighted (class "route") until the
-    // query changes or is cleared; "pulse" is only the brief flash on top.
-    const touched = new Set();
-    for (const id of nodeIds) {
-      cy.getElementById(id)
-        .connectedEdges()
-        .forEach((e) => {
-          if (!touched.has(e.id())) {
-            touched.add(e.id());
-            e.removeClass("dimmed").addClass("pulse route");
-          }
-        });
-    }
+    // Route edges stay highlighted until the query is edited or cleared —
+    // but only edges whose BOTH endpoints are lit (seed/activated), so every
+    // highlighted line visibly connects two active concepts.
+    const active = new Set(nodeIds);
+    cy.nodes(".seed, .activated").forEach((n) => active.add(n.id()));
+    cy.edges(".route").removeClass("route");
+    cy.edges().forEach((e) => {
+      if (active.has(e.source().id()) && active.has(e.target().id())) {
+        e.removeClass("dimmed").addClass("pulse route");
+      }
+    });
     window.setTimeout(() => {
       cy.edges(".pulse").removeClass("pulse");
     }, 700);
