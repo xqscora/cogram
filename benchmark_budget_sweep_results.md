@@ -88,7 +88,7 @@ Existing `benchmark_longmem_raw.json` (2000-budget, incl. full_context rows) **u
 ## How to re-run after credits restored
 
 ```powershell
-cd "d:\me\其他\性格\competitions\hackathon\AGI_SUMMIT_2026\cogram"
+cd path/to/cogram
 $env:LONGMEM_RETRIEVERS = "bm25,cogram_bm25"
 foreach ($b in @(500, 1000, 1500)) {
   $env:TOKEN_BUDGET = "$b"

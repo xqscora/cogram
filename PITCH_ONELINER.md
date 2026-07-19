@@ -51,4 +51,4 @@ python sync_insforge.py status       # the same memory, persisted in the cloud
 - **InsForge ($500):** memory graph lives in InsForge Postgres, RLS-private, agent-native (`sync_insforge.py`).
 - Zero-LLM write path = no API cost to *build* memory (only reading uses the model).
 
-*Solo build, AGI Summit Hackathon 2026 — Cora Zeng, 15.*
+*Solo build, AGI Summit Hackathon 2026 — Cora Zeng.*

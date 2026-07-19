@@ -7,6 +7,12 @@ benchmark_bakeoff_embeddings.json
 __pycache__/
 *.pyc
 
+# Raw / derived copies of the public HF dataset — regenerate locally via
+# fetch_swe.py + swe_to_transcripts.py instead of committing them.
+# Source: https://huggingface.co/datasets/nebius/SWE-agent-trajectories (CC-BY-4.0)
+swe_slice.jsonl
+swe_corpus/
+
 # Personal data — never commit (Cora's own chat history, not for public repo)
 raw_store/
 concept_graph.json
