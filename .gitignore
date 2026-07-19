@@ -1,0 +1,37 @@
+
+# Large / regenerable benchmark datasets (fetch separately, see README)
+data/longmemeval_s_cleaned.json
+data/
+locomo10.json
+benchmark_bakeoff_embeddings.json
+__pycache__/
+*.pyc
+
+# Personal data — never commit (Cora's own chat history, not for public repo)
+raw_store/
+concept_graph.json
+DEMO.md
+demo_recommend.md
+_demo_gap.txt
+_demo_hit.txt
+
+# Secrets — never commit
+.env.local
+.env
+.env*.local
+.engram_pending_gaps.json
+
+# InsForge & AI agent skills
+.insforge
+.agent
+.agents
+.augment
+.claude
+.cline
+.github/copilot*
+.kilocode
+.qoder
+.qwen
+.roo
+.trae
+.windsurf

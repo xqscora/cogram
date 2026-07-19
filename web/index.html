@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Cogram — Memory that forgets, but never deletes</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="header-row">
+      <div>
+        <h1>Cogram</h1>
+        <p class="subtitle">Memory that forgets, but never deletes.</p>
+      </div>
+      <div class="token-badge">
+        <div class="label">Query context budget</div>
+        <div class="counts">
+          <span class="accent" id="budget-count">2,000</span>
+          <span> vs </span>
+          <span id="raw-count">—</span>
+          <span> tokens</span>
+        </div>
+        <span class="ratio-pill" id="ratio-pill">≈55× less</span>
+      </div>
+    </div>
+  </header>
+
+  <div class="main-grid">
+    <div class="controls-bar">
+      <div class="control-group grow">
+        <label for="query-input">Recall query</label>
+        <div class="query-row">
+          <input type="text" id="query-input" placeholder="Ask the memory graph…" autocomplete="off" />
+          <button type="button" class="primary" id="query-btn">Spread</button>
+        </div>
+        <div class="status-line" id="status-line"></div>
+      </div>
+      <div class="control-group tick-control">
+        <label for="tick-slider">Experienced time (ticks)</label>
+        <output id="tick-value">53</output>
+        <input type="range" id="tick-slider" min="1" max="53" value="53" step="1" />
+        <span class="tick-hint">Drag forward — edges fade toward floor ε but never vanish.</span>
+      </div>
+    </div>
+
+    <div class="graph-pane">
+      <div id="cy"></div>
+      <div class="graph-legend">
+        Faded edges = forgotten but recoverable (decay → floor ε, never zero).
+      </div>
+    </div>
+
+    <aside class="side-panel">
+      <section class="panel-section" id="ku-section">
+        <div class="section-label">Knowledge update</div>
+        <h2>Old belief → revised fact</h2>
+        <div class="ku-callout" id="ku-callout"></div>
+      </section>
+      <section class="panel-section">
+        <div class="section-label">Provenance</div>
+        <h2>Activated sources</h2>
+      </section>
+      <div class="provenance-list" id="provenance-list">
+        <p class="prov-empty">Run a query to trace concepts back to source lines.</p>
+      </div>
+    </aside>
+  </div>
+
+  <footer class="bottom-strip">
+    <h2>LongMemEval benchmark (Round 3)</h2>
+    <table class="results-table" id="results-table">
+      <thead>
+        <tr>
+          <th>Retriever</th>
+          <th>Accuracy</th>
+          <th>Avg ctx tokens</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+    <p class="positioning" id="positioning-caption"></p>
+  </footer>
+
+  <script src="vendor/cytoscape.min.js"></script>
+  <script src="app.js?v=4"></script>
+</body>
+</html>
