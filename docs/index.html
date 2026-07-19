@@ -116,7 +116,7 @@ memory_api.end_turn()              # end of turn: learn + tick</code></pre>
           <li>On LongMemEval, our graph's ranking <strong>ties</strong> the best lexical baseline (BM25) rather than beating it outright — see appendix below.</li>
           <li>It can only recall what the agent actually lived through — no prior trajectory, no memory of it.</li>
           <li>"Concept-of-concepts" (promoting a whole bug→fix pattern into one reusable node) is designed but <strong>not yet implemented</strong> — see <code>CONCEPT_OF_CONCEPTS.md</code>.</li>
-          <li>Directed "next" transitions are a first-order heuristic, not yet validated against a dedicated procedural-accuracy benchmark.</li>
+          <li>Directed "next" transitions are still a first-order heuristic — the precision benchmark validates <em>which line</em> gets recalled, not yet whether the "next step" ordering itself is correct.</li>
         </ul>
       </div>
     </div>
