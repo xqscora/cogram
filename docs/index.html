@@ -68,6 +68,22 @@
     </aside>
   </div>
 
+  <section class="pros-cons-strip" style="padding-bottom:0">
+    <h2>Use it in your own agent — one pip install</h2>
+    <div class="pros-cons-grid">
+      <div class="pc-col">
+        <div class="pc-label">Install</div>
+        <pre style="background:var(--panel-bg,#f4f5f7);border:1px solid var(--border,#dcdfe4);border-radius:6px;padding:14px 16px;overflow-x:auto;font-size:0.85rem"><code>pip install git+https://github.com/xqscora/cogram.git</code></pre>
+      </div>
+      <div class="pc-col">
+        <div class="pc-label">Two lines in your agent loop</div>
+        <pre style="background:var(--panel-bg,#f4f5f7);border:1px solid var(--border,#dcdfe4);border-radius:6px;padding:14px 16px;overflow-x:auto;font-size:0.85rem"><code>import memory_api
+hits = memory_api.recommend(task)  # start of turn
+memory_api.end_turn()              # end of turn: learn + tick</code></pre>
+      </div>
+    </div>
+  </section>
+
   <section class="pros-cons-strip">
     <h2>Where this is strong, where it isn't</h2>
     <div class="pros-cons-grid">
@@ -78,7 +94,8 @@
           <li>Forgetting has a <strong>floor, not a cliff</strong> — edges decay toward ε but are never deleted, and get re-lit the moment they're relevant again.</li>
           <li>Decay runs on <strong>ticks (real interactions)</strong>, not wall-clock days — an idle agent's memory doesn't erode just because time passed.</li>
           <li>Every recall points to an exact <strong>file:line</strong> in the original transcript — never a generated summary, always checkable.</li>
-          <li>~4.5× smaller on disk than raw transcripts; ~150–280 tokens per recall vs. thousands to replay full history.</li>
+          <li>~4.5× smaller on disk than raw transcripts; ~150–400 tokens per recall vs. thousands to replay full history.</li>
+          <li>Routing is measured, not cherry-picked: <strong>43.3% top-1 same-repo recall vs. 2.9% chance (~15×)</strong> on 150 sampled bug reports, zero LLM calls — see <code>benchmark_procedural_precision_results.md</code>.</li>
         </ul>
       </div>
       <div class="pc-col pc-con">
@@ -111,6 +128,6 @@
   </footer>
 
   <script src="vendor/cytoscape.min.js"></script>
-  <script src="app.js?v=5"></script>
+  <script src="app.js?v=6"></script>
 </body>
 </html>

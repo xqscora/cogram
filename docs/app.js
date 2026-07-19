@@ -60,7 +60,7 @@
     round: 3,
     rows: [
       { name: "bm25", acc: "62.1%", correct: "18/29", tokens: "1,993" },
-      { name: "engram_bm25", acc: "62.1%", correct: "18/29", tokens: "1,991" },
+      { name: "cogram_bm25", acc: "62.1%", correct: "18/29", tokens: "1,991" },
       { name: "full_context", acc: "55.2%", correct: "16/29", tokens: "109,175" },
     ],
     tokenRatio: 54.8,
