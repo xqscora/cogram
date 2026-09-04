@@ -1,0 +1,1 @@
+Fixed KeyError email in src/user.py profile loader by using a guarded lookup and a default profile value. The failing test now passes after the patch. Verify the user profile loader before merging.

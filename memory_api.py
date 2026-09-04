@@ -452,7 +452,11 @@ def recommend(query: str, budget_tokens: int = 2000) -> dict:
     }
 
 
-def end_turn(turn_text: str, sync: bool = False) -> dict:
+def end_turn(
+    turn_text: str,
+    sync: bool = False,
+    source_path: Optional[str] = None,
+) -> dict:
     """Ingest turn text, advance tick, save graph; optionally cloud sync.
 
     ``closed_gaps`` compares against concepts recorded as unknown by the most
@@ -472,7 +476,9 @@ def end_turn(turn_text: str, sync: bool = False) -> dict:
     tick = _current_tick(meta) + 1
     meta["tick"] = tick
 
-    source = f"turn_{today}_{tick}"
+    # Callers that already own a provenance path can anchor the learned turn
+    # there. The generated turn name remains the backwards-compatible default.
+    source = source_path.replace("\\", "/").lstrip("/") if source_path else f"turn_{today}_{tick}"
     if source not in files_table:
         files_table.append(source)
     source_id = files_table.index(source)
@@ -541,6 +547,7 @@ def end_turn(turn_text: str, sync: bool = False) -> dict:
         "reinforced_edges": reinforced,
         "tick": tick,
         "closed_gaps": closed_gaps,
+        "source_path": source,
     }
     if sync:
         result["sync"] = sync_status

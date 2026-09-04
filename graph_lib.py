@@ -79,6 +79,8 @@ def _ensure_jieba():
     try:
         import jieba  # type: ignore
 
+        if not callable(getattr(jieba, "cut", None)):
+            raise ImportError("jieba module has no callable cut()")
         _jieba = jieba
     except ImportError:
         try:
@@ -89,6 +91,8 @@ def _ensure_jieba():
             )
             import jieba  # type: ignore
 
+            if not callable(getattr(jieba, "cut", None)):
+                raise ImportError("installed jieba module has no callable cut()")
             _jieba = jieba
         except Exception:
             _jieba = None

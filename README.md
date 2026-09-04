@@ -44,6 +44,28 @@ memory_api.end_turn()  # learn from this turn, advance one tick
 
 A `cogram-demo` console command is also installed (same as `python swe_recall_demo.py`).
 
+## Strands Agents integration
+
+The [`strands_demo/`](strands_demo/) folder is a runnable integration for the
+Agents for Humans hackathon. It puts the real Cogram `memory_api` in the
+Strands agent loop instead of presenting a mock memory layer:
+
+```text
+Strands Agent -> cogram_recall / cogram_ingest_turn -> memory_api -> graph -> file:line evidence
+```
+
+Run the deterministic acceptance path without cloud credentials:
+
+```bash
+python -m pip install -r strands_demo/requirements-strands.txt
+python strands_demo/run_demo.py
+```
+
+The demo ingests one completed coding turn into an isolated graph, asks for a
+related fix, and prints the returned citation. A live model is optional; set
+`STRANDS_USE_OLLAMA=1` or provide supported cloud credentials to let Strands
+choose tool calls. The agent never auto-applies a patch.
+
 ## Try it
 
 The dataset itself is **not** vendored in this repo — it's downloaded fresh from the source below, so nothing here is a private or pre-baked copy of anyone's data.
