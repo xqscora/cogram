@@ -4,25 +4,25 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Cogram — Procedural memory for coding agents</title>
-  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="style.css?v=9" />
 </head>
 <body>
   <header class="site-header">
     <div class="header-row">
       <div>
         <h1>Cogram</h1>
-        <p class="subtitle">Remembers how past bugs got fixed. Decays with use, never deletes.</p>
-        <p class="subtitle" style="margin-top:6px"><strong>This page is the live demo</strong> — the full concept graph is loaded in your browser. Type any bug description below (or click a suggestion) and watch it recall real fixes with exact file:line provenance. Nothing to install.</p>
+        <p class="subtitle">Provenance-linked memory for coding agents.</p>
+        <p class="subtitle" style="margin-top:6px">Interactive SWE trajectory subset: 86 concepts, 192 edges. Source excerpts are retrieved, not generated; a relevant excerpt is not proof of a correct fix.</p>
       </div>
       <div class="token-badge">
-        <div class="label">Recall cost for this query</div>
+        <div class="label">Current source payload / source corpus</div>
         <div class="counts">
-          <span class="accent" id="budget-count">160</span>
-          <span> vs </span>
+          <span class="accent" id="budget-count">0</span>
+          <span> / </span>
           <span id="raw-count">—</span>
-          <span> raw tokens</span>
+          <span> estimated tokens</span>
         </div>
-        <span class="ratio-pill" id="ratio-pill">≈15,822× less</span>
+        <span class="ratio-pill" id="ratio-pill">estimate: characters / 4</span>
       </div>
     </div>
   </header>
@@ -30,7 +30,7 @@
   <div class="main-grid">
     <div class="controls-bar">
       <div class="control-group grow">
-        <label for="query-input">Recall query — try a new bug description</label>
+        <label for="query-input">Recall query</label>
         <div class="query-row">
           <input type="text" id="query-input" placeholder="Ask the memory graph…" autocomplete="off" />
           <button type="button" class="primary" id="query-btn">Spread</button>
@@ -39,44 +39,43 @@
         <div class="query-chips" id="query-chips"></div>
       </div>
       <div class="control-group tick-control">
-        <label for="tick-slider">Experienced time (ticks = trajectories seen)</label>
+        <label for="tick-slider">Snapshot tick + simulated idle ticks</label>
         <output id="tick-value">600</output>
         <input type="range" id="tick-slider" min="1" max="600" value="600" step="1" />
-        <span class="tick-hint">Drag back in time — edges fade toward floor ε but never vanish.</span>
+        <span class="tick-hint">Decay scenario on the same fixed graph, not historical replay or new learning.</span>
       </div>
     </div>
 
     <div class="graph-pane">
       <div id="cy"></div>
       <div class="graph-legend">
-        Faded edges = forgotten but recoverable (decay → floor ε, never zero). Built from 600 real SWE-agent trajectories, zero LLM calls.
+        Exported subset of a graph built from 600 SWE-agent trajectories. Retrieval uses local graph traversal; no LLM calls.
       </div>
     </div>
 
     <aside class="side-panel">
-      <section class="panel-section" id="ku-section">
-        <div class="section-label">Procedural memory hit</div>
-        <h2>New bug report → recalled fix</h2>
-        <div class="ku-callout" id="ku-callout"></div>
-      </section>
       <section class="panel-section">
         <div class="section-label">Provenance</div>
-        <h2>Activated sources (exact file:line)</h2>
+        <h2>Current query sources</h2>
       </section>
       <div class="provenance-list" id="provenance-list">
         <p class="prov-empty">Run a query to trace concepts back to source lines.</p>
       </div>
+      <details class="panel-section" id="ku-section">
+        <summary>Archived dacite example</summary>
+        <div class="ku-callout" id="ku-callout"></div>
+      </details>
     </aside>
   </div>
 
   <section class="pros-cons-strip" style="padding-bottom:0">
-    <h2>What this saves, in dollars</h2>
-    <p class="positioning-lead" style="max-width:none">The naive way to give an agent memory is to replay its history into the context window — measured at <strong>~109k tokens per question</strong> on LongMemEval. A Cogram recall is <strong>~300 tokens</strong> for the same answer quality (see benchmark below). At $3 per million input tokens, that's <strong>$0.33 vs. $0.001 per lookup</strong> — for a team running 1,000 agent memory lookups a day, roughly <strong>$120k/year vs. $330/year</strong>. And because recall is pure graph traversal with zero LLM calls, it returns in milliseconds instead of waiting on a 100k-token prompt.</p>
+    <h2>Evidence and cost scope</h2>
+    <p class="positioning-lead" style="max-width:none">The counter reports a characters/4 estimate of the current source payload beside the estimated size of the entire source corpus. It is not a measured per-query saving. In the separate historical LongMemEval run below, Cogram+BM25 used <strong>1,992 context tokens</strong> per question versus <strong>89,469</strong> in a mixed-cap full-context arm. Answer-model calls still have a cost; this page does not establish annual savings or production latency.</p>
   </section>
 
   <section class="pros-cons-strip" style="padding-bottom:0">
     <h2>Path to adoption</h2>
-    <p class="positioning-lead" style="max-width:none"><strong>Now:</strong> open-source core, pip-installable into any Python agent loop in two lines (below) — CC BY-NC-SA, free for personal and research use forever. <strong>Next:</strong> drop-in adapters for SWE-agent, OpenHands, and Claude Code hooks, so memory is attached with zero code. <strong>Sustainable layer:</strong> a hosted team graph on <strong>InsForge</strong> — one shared procedural memory across every agent and engineer in an org, with cross-agent sync. The cloud persistence path is already wired: <code>sync_insforge.py</code> pushes the graph to InsForge tables (schema in <code>migrations/</code>), so the hosted version is a product decision away, not a rewrite. The open core stays open; teams pay for the shared brain, not the algorithm.</p>
+    <p class="positioning-lead" style="max-width:none"><strong>Available:</strong> the Python memory core and a static browser export under CC BY-NC-SA. <strong>Proposed:</strong> agent adapters and shared team memory. Repository sync code is not evidence of a tested hosted service, production readiness, paying customers, or a commercial license.</p>
   </section>
 
   <section class="pros-cons-strip" style="padding-bottom:0">
@@ -101,12 +100,12 @@ memory_api.end_turn()              # end of turn: learn + tick</code></pre>
       <div class="pc-col pc-pro">
         <div class="pc-label">Pros</div>
         <ul>
-          <li>Graph is built with <strong>zero LLM calls</strong> — co-occurrence + a novelty/surprise signal, not a model summarizing anything. Can't hallucinate a memory that never happened.</li>
+          <li>Graph construction and retrieval use <strong>zero LLM calls</strong>. Returned text comes from source records; it can still be irrelevant, incomplete, or wrong.</li>
           <li>Forgetting has a <strong>floor, not a cliff</strong> — edges decay toward ε but are never deleted, and get re-lit the moment they're relevant again.</li>
           <li>Decay runs on <strong>ticks (real interactions)</strong>, not wall-clock days — an idle agent's memory doesn't erode just because time passed.</li>
           <li>Every recall points to an exact <strong>file:line</strong> in the original transcript — never a generated summary, always checkable.</li>
-          <li>~4.4× smaller on disk than raw transcripts; ~150–400 tokens per recall vs. thousands to replay full history.</li>
-          <li>Routing is measured, not cherry-picked: <strong>43.3% top-1 same-repo recall vs. 2.9% chance (~15×)</strong> on 150 sampled bug reports, zero LLM calls — see <code>benchmark_procedural_precision_results.md</code>.</li>
+          <li>The browser counter is a heuristic, not a tokenizer measurement; display excerpts may be truncated while the payload estimate uses their full text.</li>
+          <li>The historical Python routing report records <strong>43.3% top-1 same-repo recall</strong> on 150 sampled reports (31 distinct issues). It is not held-out fix success or a score for this browser revision. <a href="https://github.com/xqscora/cogram/blob/main/benchmark_procedural_precision_results.md">Method and limitations</a>.</li>
         </ul>
       </div>
       <div class="pc-col pc-con">
@@ -115,7 +114,7 @@ memory_api.end_turn()              # end of turn: learn + tick</code></pre>
           <li>Not the first zero-LLM concept-graph memory — SPRIG (arXiv:2602.23372) and MemGraph-agent already proved this general approach works.</li>
           <li>On LongMemEval, our graph's ranking <strong>ties</strong> the best lexical baseline (BM25) rather than beating it outright — see appendix below.</li>
           <li>It can only recall what the agent actually lived through — no prior trajectory, no memory of it.</li>
-          <li>"Concept-of-concepts" (promoting a whole bug→fix pattern into one reusable node) is <strong>implemented and mining real motifs</strong> (32 on the current corpus, reinforced across 87 distinct trajectories) — but <strong>not yet wired into live recall or the benchmarks</strong>, so it doesn't move today's numbers. See <code>CONCEPT_OF_CONCEPTS.md</code>.</li>
+          <li>Motif mining is separate from this browser's live retrieval and must not be credited with improving its results.</li>
           <li>Directed "next" transitions are still a first-order heuristic — the precision benchmark validates <em>which line</em> gets recalled, not yet whether the "next step" ordering itself is correct.</li>
         </ul>
       </div>
@@ -123,8 +122,8 @@ memory_api.end_turn()              # end of turn: learn + tick</code></pre>
   </section>
 
   <footer class="bottom-strip">
-    <h2>Also holds up on standard conversational-memory benchmarks (secondary evidence)</h2>
-    <p class="positioning-lead">Procedural memory is the primary claim above. This table is from a different benchmark (LongMemEval, ICLR 2025) included so the general-memory numbers are on the record too.</p>
+    <h2>Historical LongMemEval results</h2>
+    <p class="positioning-lead">Round 3, 48 sampled questions; not this SWE browser export. All full-context rows were truncated, with mixed token caps. <a href="https://github.com/xqscora/cogram/blob/main/benchmark_longmem_results.md">Full report</a>.</p>
     <table class="results-table" id="results-table">
       <thead>
         <tr>
@@ -139,6 +138,7 @@ memory_api.end_turn()              # end of turn: learn + tick</code></pre>
   </footer>
 
   <script src="vendor/cytoscape.min.js"></script>
-  <script src="app.js?v=8"></script>
+  <script src="recall.js?v=1"></script>
+  <script src="app.js?v=9"></script>
 </body>
 </html>
