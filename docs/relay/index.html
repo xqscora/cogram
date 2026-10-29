@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Cogram Relay</title>
+    <link rel="stylesheet" href="style.css" />
+    <script defer src="../recall.js"></script>
+    <script defer src="../vendor/cytoscape.min.js"></script>
+    <script defer src="capsule.js"></script>
+    <script defer src="app.js"></script>
+  </head>
+  <body>
+    <header>
+      <a href="../">Cogram</a><span> / </span><strong>Relay</strong
+      ><span class="privacy">Local session · public SWE corpus</span>
+    </header>
+    <main>
+      <div class="title-row">
+        <div>
+          <p class="eyebrow">Team workspace</p>
+          <h1>Cogram Relay</h1>
+        </div>
+        <span id="snapshot" class="snapshot">Loading snapshot…</span>
+      </div>
+      <form id="query-form" class="query-bar">
+        <label for="query">Investigation</label
+        ><input
+          id="query"
+          maxlength="500"
+          value="dacite default_factory dataclass"
+          required
+          disabled
+        />
+        <button id="recall" type="submit" disabled>Recall evidence</button>
+      </form>
+      <div class="examples" id="examples" aria-label="Investigations"></div>
+      <div class="workspace">
+        <section class="sources-pane" aria-labelledby="source-heading">
+          <div class="section-heading">
+            <h2 id="source-heading">Source evidence</h2>
+            <span id="result-count">—</span>
+          </div>
+          <div id="results" class="results"></div>
+        </section>
+        <aside class="relay-pane">
+          <div class="section-heading">
+            <h2>Evidence capsule</h2>
+            <span id="selected-count">0 selected</span>
+          </div>
+          <div
+            id="graph"
+            role="img"
+            aria-label="Concepts supporting the selected source evidence"
+          ></div>
+          <div class="field-row">
+            <label for="budget">File budget</label
+            ><select id="budget">
+              <option value="8192">8 KiB</option>
+              <option value="16384">16 KiB</option>
+              <option value="32768" selected>32 KiB</option>
+            </select>
+          </div>
+          <label for="note">Next step for teammate</label
+          ><textarea id="note" maxlength="1500" rows="3"></textarea>
+          <div class="capsule-receipt">
+            <span id="byte-count">— bytes</span
+            ><span id="integrity">No capsule</span>
+          </div>
+          <div class="actions">
+            <button id="export" type="button" disabled>Export capsule</button
+            ><button id="import" type="button" class="secondary" disabled>
+              Import capsule</button
+            ><input
+              id="file"
+              type="file"
+              accept=".json,application/json"
+              hidden
+            />
+          </div>
+          <details class="json-preview">
+            <summary>Outgoing JSON</summary>
+            <pre id="preview">No evidence selected.</pre>
+          </details>
+          <section id="incoming" hidden aria-labelledby="incoming-heading">
+            <div class="section-heading">
+              <h2 id="incoming-heading">Incoming review</h2>
+              <button id="dismiss" type="button" class="secondary">
+                Dismiss
+              </button>
+            </div>
+            <p id="incoming-status"></p>
+            <dl>
+              <dt>Investigation</dt>
+              <dd id="incoming-query"></dd>
+              <dt>Next step</dt>
+              <dd id="incoming-note"></dd>
+            </dl>
+            <p id="difference"></p>
+            <div id="incoming-sources"></div>
+            <button id="adopt" type="button">Adopt selection</button>
+          </section>
+        </aside>
+      </div>
+      <p id="status" role="status" aria-live="polite">Loading corpus…</p>
+      <footer>
+        Public research trajectories, not verified fixes. Hash checks establish
+        snapshot consistency, not authorship or truth.
+        <a href="README.md">Provenance &amp; development record</a>
+      </footer>
+    </main>
+  </body>
+</html>

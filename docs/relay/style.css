@@ -1,0 +1,368 @@
+:root {
+  font-family:
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+  color: #242b2b;
+  background: #f8faf9;
+  font-size: 14px;
+  letter-spacing: 0;
+  color-scheme: light;
+}
+* {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+}
+button,
+input,
+textarea,
+select {
+  font: inherit;
+  letter-spacing: 0;
+}
+button {
+  min-height: 40px;
+  padding: 9px 15px;
+  border: 1px solid #176758;
+  border-radius: 5px;
+  background: #176758;
+  color: white;
+  cursor: pointer;
+  font-weight: 600;
+}
+button:hover {
+  background: #0c5043;
+}
+button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+.secondary {
+  background: white;
+  color: #344846;
+  border-color: #b9c9c6;
+}
+.secondary:hover {
+  background: #edf4f1;
+}
+a {
+  color: #176758;
+}
+header {
+  height: 60px;
+  border-bottom: 1px solid #d6dfdc;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 32px;
+  background: white;
+}
+header > a {
+  text-decoration: none;
+  font-size: 19px;
+  font-weight: 750;
+  color: #273b36;
+}
+.privacy {
+  margin-left: auto;
+  color: #60716d;
+  font-size: 12px;
+}
+main {
+  max-width: 1440px;
+  margin: auto;
+  padding: 28px 32px 16px;
+}
+.title-row {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+.eyebrow {
+  font-size: 12px;
+  color: #74616d;
+  margin: 0 0 4px;
+}
+h1 {
+  font-size: 30px;
+  margin: 0;
+}
+h2 {
+  font-size: 16px;
+  margin: 0;
+}
+.snapshot {
+  font-family: monospace;
+  font-size: 11px;
+  color: #66746e;
+  overflow-wrap: anywhere;
+}
+.query-bar {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+}
+input,
+textarea,
+select {
+  color: inherit;
+  background: white;
+  border: 1px solid #aabdb6;
+  border-radius: 4px;
+  padding: 10px;
+  width: 100%;
+}
+textarea {
+  resize: vertical;
+  min-height: 88px;
+}
+input:focus,
+textarea:focus,
+select:focus {
+  outline: 2px solid #2c8070;
+  outline-offset: 2px;
+}
+.examples {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin: 10px 0 26px;
+}
+.examples button {
+  background: transparent;
+  color: #47675c;
+  border: 0;
+  border-radius: 0;
+  padding: 3px 0;
+  min-height: 28px;
+  font-size: 12px;
+  font-weight: 400;
+  text-align: left;
+}
+.examples button:hover {
+  text-decoration: underline;
+}
+.workspace {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(330px, 1fr);
+  gap: 32px;
+}
+.section-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 36px;
+  border-bottom: 1px solid #d4ded9;
+  padding-bottom: 12px;
+}
+.section-heading span {
+  font-size: 12px;
+  color: #61746a;
+}
+.relay-pane {
+  min-width: 0;
+  border-left: 1px solid #d4ded9;
+  padding-left: 28px;
+}
+.source {
+  border-bottom: 1px solid #d4ded9;
+  padding: 16px 0;
+}
+.source summary {
+  display: flex;
+  gap: 10px;
+  align-items: start;
+  cursor: pointer;
+}
+.source input {
+  width: 18px;
+  height: 18px;
+  flex: none;
+  accent-color: #176758;
+  margin: 2px 0;
+}
+.source .pointer {
+  font-size: 12px;
+  font-family: monospace;
+  overflow-wrap: anywhere;
+  line-height: 1.55;
+  flex: 1;
+}
+.source .score {
+  font-size: 11px;
+  color: #6a716e;
+  white-space: nowrap;
+}
+.source pre {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font:
+    12px/1.65 ui-monospace,
+    monospace;
+  margin: 14px 0 0 28px;
+  max-height: 350px;
+  overflow-y: auto;
+  color: #34453c;
+}
+.source .origin {
+  color: #896177;
+  font-size: 11px;
+  margin: 12px 0 0 28px;
+}
+.empty {
+  padding: 36px 0;
+  color: #68776f;
+}
+#graph {
+  height: 200px;
+  width: 100%;
+  background: #f1f5f2;
+  border-bottom: 1px solid #d4ded9;
+  margin-bottom: 16px;
+}
+.field-row {
+  display: grid;
+  grid-template-columns: 1fr 100px;
+  align-items: center;
+  margin-bottom: 16px;
+}
+label {
+  font-weight: 600;
+  font-size: 12px;
+}
+textarea {
+  margin-top: 8px;
+}
+.capsule-receipt {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font: 11px monospace;
+  color: #61746a;
+  margin: 12px 0 16px;
+}
+.actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.json-preview {
+  margin: 18px 0;
+  font-size: 12px;
+}
+.json-preview summary {
+  cursor: pointer;
+  color: #556c61;
+}
+.json-preview pre {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  max-height: 300px;
+  overflow-y: auto;
+  background: white;
+  padding: 12px;
+  border: 1px solid #d4ded9;
+}
+#incoming {
+  border-top: 2px solid #8e617c;
+  margin-top: 22px;
+  padding-top: 16px;
+}
+#incoming .section-heading {
+  border: 0;
+  padding: 0;
+}
+#incoming dl {
+  font-size: 12px;
+}
+dt {
+  color: #63766b;
+  margin-top: 12px;
+}
+dd {
+  margin: 5px 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+#incoming-status {
+  color: #176758;
+  font-size: 12px;
+}
+#difference {
+  font-size: 12px;
+  color: #7a5269;
+}
+#incoming-sources {
+  max-height: 350px;
+  overflow-y: auto;
+  margin-bottom: 18px;
+}
+#status {
+  min-height: 20px;
+  margin: 24px 0 12px;
+  font-size: 12px;
+  color: #42674e;
+}
+#status.error {
+  color: #aa343c;
+}
+footer {
+  border-top: 1px solid #d4ded9;
+  padding-top: 14px;
+  color: #748078;
+  font-size: 11px;
+  line-height: 1.7;
+}
+@media (max-width: 760px) {
+  header {
+    padding: 0 16px;
+  }
+  .privacy {
+    max-width: 160px;
+    text-align: right;
+  }
+  main {
+    padding: 22px 16px;
+  }
+  .title-row {
+    align-items: start;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .query-bar {
+    grid-template-columns: 1fr;
+  }
+  .query-bar button {
+    width: 100%;
+  }
+  .workspace {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+  .relay-pane {
+    border-left: 0;
+    border-top: 1px solid #d4ded9;
+    padding: 20px 0 0;
+  }
+  .examples {
+    gap: 4px 14px;
+  }
+  .examples button {
+    max-width: 100%;
+    overflow-wrap: anywhere;
+  }
+  h1 {
+    font-size: 28px;
+  }
+  .source .score {
+    display: none;
+  }
+}
