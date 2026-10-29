@@ -121,7 +121,7 @@ body {
   flex-shrink: 0;
   flex-basis: auto;
   display: grid;
-  grid-template-columns: 1fr 340px;
+  grid-template-columns: minmax(0, 1fr) 340px;
   grid-template-rows: auto 1fr;
   gap: 0;
   min-height: 520px;
@@ -200,6 +200,7 @@ body {
 
 #query-input {
   flex: 1;
+  min-width: 0;
   padding: 0.55rem 0.75rem;
   border: 1px solid var(--border);
   background: var(--bg);
@@ -266,12 +267,14 @@ input[type="range"] {
 
 .graph-pane {
   position: relative;
+  min-width: 0;
   min-height: 420px;
   border-right: 1px solid var(--border);
   background: var(--bg);
 }
 
 #cy {
+  overflow: hidden;
   width: 100%;
   height: 100%;
   min-height: 420px;
@@ -315,6 +318,9 @@ input[type="range"] {
   overflow-y: auto;
 }
 
+#ku-section summary { cursor: pointer; }
+#ku-section[open] summary { margin-bottom: 0.75rem; }
+
 .panel-section h2 {
   margin: 0 0 0.65rem;
   font-family: var(--serif);
@@ -335,9 +341,11 @@ input[type="range"] {
   overflow-y: auto;
   padding: 0 1.25rem 1rem;
   min-height: 0;
+  overflow-wrap: anywhere;
 }
 
 .prov-item {
+  overflow-wrap: anywhere;
   padding: 0.65rem 0;
   border-bottom: 1px solid var(--border);
   font-size: 0.82rem;
@@ -376,6 +384,7 @@ input[type="range"] {
 /* Knowledge update callout */
 
 .ku-callout {
+  overflow-wrap: anywhere;
   font-size: 0.82rem;
 }
 
@@ -427,6 +436,8 @@ input[type="range"] {
   grid-template-columns: 1fr 1fr;
   gap: 1.5rem 2.5rem;
 }
+
+.pc-col { min-width: 0; }
 
 .pc-col ul {
   margin: 0;
@@ -539,7 +550,7 @@ input[type="range"] {
 
 @media (max-width: 960px) {
   .main-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .graph-pane {
@@ -558,4 +569,20 @@ input[type="range"] {
   .token-badge {
     text-align: left;
   }
+}
+
+@media (max-width: 480px) {
+  .site-header, .controls-bar, .pros-cons-strip, .bottom-strip {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  .control-group.grow, .tick-control {
+    min-width: 0;
+    width: 100%;
+  }
+
+  .chip { max-width: 100%; overflow-wrap: anywhere; }
+  .token-badge .counts { font-size: 1.1rem; }
+  .results-table th, .results-table td { padding: 0.4rem 0.2rem; }
 }

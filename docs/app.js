@@ -1,12 +1,14 @@
 /**
  * Cogram interactive demo — zero-LLM procedural-memory concept graph.
  * Fully static; loads graph.json built by build_web_graph_swe.py.
- * v5 — procedural-memory framing (SWE-agent trajectories), pros/cons strip.
+ * Retrieval operates on an exported subset, not the full Python graph.
  */
 (function () {
   "use strict";
 
   const GRAPH_VERSION = "5";
+  const { tokenize, seedActivation, effWeight, buildAdjacency, spreadActivation,
+    rankProvenance, estimatePayloadTokens } = window.CogramRecall;
 
   function setStatus(msg, isError) {
     const el = document.getElementById("status-line");
@@ -22,36 +24,12 @@
     setStatus(`Unhandled: ${evt.reason && evt.reason.message ? evt.reason.message : evt.reason}`, true);
   });
 
-  const EPS = 0.05;
-  const TAU_TICKS = 50;
-
-  const EN_STOP = new Set(
-    `a about above after again against all am an and any are as at be because been
-    before being below between both but by can could did do does doing don down during
-    each few for from further had has have having he her here hers herself him himself
-    his how i if in into is it its itself just ll me more most my myself no nor not
-    now of off on once only or other our ours ourselves out over own re s same she
-    should so some such t than that the their theirs them themselves then there these
-    they this those through to too under until up ve very was we were what when where
-    which while who whom why will with would you your yours yourself yourselves
-    also get got like make made use used using one two three new way may well much
-    many still even back go going come came take took see saw say said says tell
-    told think thought know knew want need let put find give given keep look looking
-    something anything everything nothing someone anyone everyone into onto upon`.split(/\s+/)
-  );
-
   /** @type {object|null} */
   let DATA = null;
   /** @type {import('cytoscape').Core|null} */
   let cy = null;
-  /** @type {Map<string, object>} */
-  let nodeMap = new Map();
-  /** @type {Map<string, number[]>} */
-  let pointers = new Map();
   /** @type {object[]} */
   let lines = [];
-  /** @type {Set<number>} */
-  let answerLineSet = new Set();
   let currentTick = 53;
   let spreadTimer = 0;
 
@@ -59,36 +37,13 @@
     n: 48,
     round: 3,
     rows: [
-      { name: "bm25", acc: "62.1%", correct: "18/29", tokens: "1,993" },
-      { name: "cogram_bm25", acc: "62.1%", correct: "18/29", tokens: "1,991" },
-      { name: "full_context", acc: "55.2%", correct: "16/29", tokens: "109,175" },
+      { name: "bm25", acc: "58.3%", correct: "28/48", tokens: "1,993" },
+      { name: "cogram_bm25", acc: "58.3%", correct: "28/48", tokens: "1,992" },
+      { name: "full_context", acc: "35.4%", correct: "17/48", tokens: "89,469" },
     ],
-    tokenRatio: 54.8,
+    tokenRatio: 44.9,
     source: "benchmark_longmem_results.md (Round 3, n=48 stratified, seed=42)",
   };
-
-  function effWeight(wRaw, lastTick, curTick) {
-    const dt = Math.max(0, curTick - lastTick);
-    return EPS + (wRaw - EPS) * Math.exp(-dt / TAU_TICKS);
-  }
-
-  function tokenize(text) {
-    const raw = text.toLowerCase().match(/[a-z][a-z0-9_-]{2,}/g) || [];
-    return raw.filter((t) => t.length >= 3 && !EN_STOP.has(t));
-  }
-
-  function buildAdjacency(edges) {
-    const adj = new Map();
-    for (const e of edges) {
-      const a = e.source;
-      const b = e.target;
-      if (!adj.has(a)) adj.set(a, []);
-      if (!adj.has(b)) adj.set(b, []);
-      adj.get(a).push({ nb: b, wRaw: e.w_raw, lastTick: e.last_tick });
-      adj.get(b).push({ nb: a, wRaw: e.w_raw, lastTick: e.last_tick });
-    }
-    return adj;
-  }
 
   const ACCENT = "#5b84a8";
   const ACCENT_DARK = "#4a6b8a";
@@ -96,63 +51,6 @@
   const NODE_REST_FILL = "#b9c2c9";
   const NODE_REST_STROKE = "#9aa5ad";
   const EDGE_REST = "#8d99a3";
-
-  function tokenVariants(tok) {
-    const variants = new Set([tok]);
-    if (tok.endsWith("s") && tok.length > 4) variants.add(tok.slice(0, -1));
-    if (!tok.endsWith("s")) variants.add(`${tok}s`);
-    return [...variants];
-  }
-
-  function matchScore(queryTok, nodeId, nodeLabel) {
-    const id = nodeId.toLowerCase();
-    const label = (nodeLabel || nodeId).toLowerCase();
-    const variants = tokenVariants(queryTok);
-
-    for (const v of variants) {
-      if (id === v || label === v) return 1.0;
-    }
-    for (const v of variants) {
-      if (id.startsWith(v) || label.startsWith(v) || v.startsWith(id) || v.startsWith(label)) {
-        return 0.75;
-      }
-    }
-    for (const v of variants) {
-      if (id.includes(v) || label.includes(v) || v.includes(id) || v.includes(label)) {
-        return 0.6;
-      }
-    }
-    return 0;
-  }
-
-  function seedActivation(queryTokens, nodes) {
-    const act = new Map();
-    for (const qt of queryTokens) {
-      for (const n of nodes) {
-        const score = matchScore(qt, n.id, n.label);
-        if (score > 0) {
-          act.set(n.id, Math.max(act.get(n.id) || 0, score));
-        }
-      }
-    }
-    return act;
-  }
-
-  function spreadActivation(act, adj, maxHops, tick) {
-    let current = new Map(act);
-    for (let hop = 0; hop < maxHops; hop++) {
-      const nxt = new Map(current);
-      for (const [src, srcAct] of current) {
-        if (srcAct < 0.01) continue;
-        for (const { nb, wRaw, lastTick } of adj.get(src) || []) {
-          const ew = effWeight(wRaw, lastTick, tick);
-          nxt.set(nb, (nxt.get(nb) || 0) + srcAct * ew * 0.5);
-        }
-      }
-      current = nxt;
-    }
-    return current;
-  }
 
   function animateCount(el, target, duration) {
     const start = performance.now();
@@ -179,8 +77,9 @@
       tbody.appendChild(tr);
     }
     document.getElementById("positioning-caption").innerHTML = `
-      On this separate benchmark, our BM25-ranked graph ties the best lexical baseline on accuracy —
-      at ~1/${Math.round(BENCHMARK.tokenRatio)}th the query tokens, with decaying, provenance-linked storage on top.
+      Historical Python benchmark: Cogram+BM25 ties BM25 at 28/48, with essentially the same context size.
+      Context is ${BENCHMARK.tokenRatio}x smaller than the full-context arm, which used mixed truncation caps.
+      These are not scores for this browser subset or a fresh benchmark of this revision.
       <cite>${BENCHMARK.source}</cite>`;
   }
 
@@ -209,7 +108,7 @@
     if (oldIdx != null && lineByIdx.has(oldIdx)) {
       const ln = lineByIdx.get(oldIdx);
       html += `<div class="ku-block stale">
-        <div class="ku-tag">Bug reported · trajectory tick ${ln.tick}</div>
+        <div class="ku-tag">Archived issue excerpt · trajectory tick ${ln.tick}</div>
         <div>${escapeHtml(ln.text.slice(0, 220))}${ln.text.length > 220 ? "…" : ""}</div>
         <div class="prov-meta">${escapeHtml(ln.date)} · ${escapeHtml(ln.file)}:${ln.line}</div>
       </div>`;
@@ -217,13 +116,13 @@
     if (newIdx != null && lineByIdx.has(newIdx)) {
       const ln = lineByIdx.get(newIdx);
       html += `<div class="ku-block fresh">
-        <div class="ku-tag">Recalled via concept graph · tick ${ln.tick}</div>
+        <div class="ku-tag">Archived investigation excerpt · tick ${ln.tick}</div>
         <div>${escapeHtml(ln.text.slice(0, 220))}${ln.text.length > 220 ? "…" : ""}</div>
         <div class="prov-meta">${escapeHtml(ln.date)} · ${escapeHtml(ln.file)}:${ln.line}</div>
       </div>`;
     }
     if (!html) {
-      html = `<p class="prov-empty">No bug-report / recalled-fix pair for this query — try one of the suggested queries above.</p>`;
+      html = `<p class="prov-empty">No archived example in this export.</p>`;
     }
     el.innerHTML = html;
   }
@@ -454,48 +353,31 @@
     cy.edges().removeClass("pulse dimmed route");
   }
 
-  function renderProvenance(act) {
+  function renderProvenance(act, seeds, query) {
     const list = document.getElementById("provenance-list");
     const ranked = [...act.entries()].sort((a, b) => b[1] - a[1]).slice(0, 12);
+    const hits = rankProvenance(DATA, act, seeds, tokenize(query));
+    document.getElementById("budget-count").textContent = hits.length
+      ? estimatePayloadTokens(query, hits).toLocaleString() : "0";
+    document.getElementById("ratio-pill").textContent = "estimate: characters / 4";
 
     if (!ranked.length) {
       list.innerHTML = `<p class="prov-empty">No concepts matched this query.</p>`;
       return;
     }
 
-    const lineByIdx = new Map(lines.map((l) => [l.idx, l]));
-    const lineScores = new Map();
+    let html = `<p class="prov-score">Concept activation: ${ranked.slice(0, 6)
+      .map(([concept, score]) => `${escapeHtml(concept)} ${score.toFixed(2)}`).join(" · ")}</p>`;
 
-    for (const [concept, score] of ranked) {
-      for (const idx of pointers.get(concept) || []) {
-        lineScores.set(idx, Math.max(lineScores.get(idx) || 0, score));
-      }
-    }
-
-    const orderedLines = [...lineScores.entries()]
-      .sort((a, b) => b[1] - a[1] || a[0] - b[0])
-      .slice(0, 8);
-
-    let html = "";
-    for (const [concept, score] of ranked.slice(0, 6)) {
-      html += `<div class="prov-item">
-        <div class="prov-score">${escapeHtml(concept)} · ${score.toFixed(2)}</div>
-      </div>`;
-    }
-
-    html += `<div style="height:0.5rem"></div>`;
-
-    for (const [idx, score] of orderedLines) {
-      const ln = lineByIdx.get(idx);
-      if (!ln) continue;
-      const isAnswer = answerLineSet.has(idx);
+    for (const { line: ln, score, concept } of hits) {
       const loc = ln.file ? `${ln.file}:${ln.line}` : `session ${ln.session}`;
-      html += `<div class="prov-item${isAnswer ? " answer-hit" : ""}">
-        <div class="prov-meta">${escapeHtml(ln.date)} · ${escapeHtml(loc)}${isAnswer ? " · traced to source" : ""}</div>
+      html += `<div class="prov-item source-hit">
+        <div class="prov-meta">${escapeHtml(ln.date)} · ${escapeHtml(loc)}</div>
         <div>${escapeHtml(ln.text.slice(0, 280))}${ln.text.length > 280 ? "…" : ""}</div>
-        <div class="prov-score">activation ${score.toFixed(2)}</div>
+        <div class="prov-score">relevance ${score.toFixed(2)} · via ${escapeHtml(concept)}</div>
       </div>`;
     }
+    if (!hits.length) html += `<p class="prov-empty">Matched concepts, but no sufficiently related source lines in this export.</p>`;
 
     list.innerHTML = html || `<p class="prov-empty">No provenance pointers for activated concepts.</p>`;
   }
@@ -525,7 +407,7 @@
 
       if (!seeds.size) {
         setStatus("No concepts matched this query.", true);
-        renderProvenance(new Map());
+        renderProvenance(new Map(), seeds, q);
         return;
       }
 
@@ -550,7 +432,7 @@
           }
           pulseEdgesFrom([...seeds.keys()]);
         });
-        renderProvenance(hop1);
+        renderProvenance(hop1, seeds, q);
 
         // Wave 2: 2-hop at t+450+500ms
         spreadTimer = window.setTimeout(() => {
@@ -567,7 +449,7 @@
             }
             pulseEdgesFrom([...hop2.keys()].filter((k) => hop2.get(k) > 0.15));
           });
-          renderProvenance(hop2);
+          renderProvenance(hop2, seeds, q);
           setStatus(`Activated ${activated} concept(s) from ${seeds.size} seed(s).`);
         }, 500);
       }, 450);
@@ -602,6 +484,7 @@
       currentTick = Number(slider.value);
       tickOut.textContent = String(currentTick);
       updateEdgeDecay(currentTick);
+      runQuery();
     });
 
     document.getElementById("query-btn").addEventListener("click", runQuery);
@@ -615,28 +498,26 @@
         spreadTimer = 0;
       }
       clearActivationVisuals();
-      if (!e.target.value.trim()) {
-        setStatus("");
-        document.getElementById("provenance-list").innerHTML =
-          `<p class="prov-empty">Run a query to trace concepts back to source lines.</p>`;
-      }
+      setStatus("");
+      document.getElementById("budget-count").textContent = "0";
+      document.getElementById("provenance-list").innerHTML =
+        `<p class="prov-empty">${e.target.value.trim() ? "Query changed. Results cleared." : "No query."}</p>`;
     });
   }
 
   function initMeta() {
     const meta = DATA.meta;
     currentTick = meta.current_tick;
-    document.getElementById("tick-slider").max = String(meta.current_tick);
+    document.getElementById("tick-slider").min = String(meta.current_tick);
+    document.getElementById("tick-slider").max = String(meta.current_tick + 250);
     document.getElementById("tick-slider").value = String(meta.current_tick);
     document.getElementById("tick-value").textContent = String(meta.current_tick);
 
     const rawEl = document.getElementById("raw-count");
     animateCount(rawEl, meta.raw_corpus_tokens, 1200);
 
-    const ratio = meta.raw_corpus_tokens / meta.budget_tokens;
-    document.getElementById("ratio-pill").textContent = `≈${Math.round(ratio)}× less`;
-
-    document.getElementById("budget-count").textContent = meta.budget_tokens.toLocaleString();
+    document.getElementById("ratio-pill").textContent = "estimate: characters / 4";
+    document.getElementById("budget-count").textContent = "0";
     document.getElementById("query-input").value = DATA.demo_query || meta.question;
     renderQueryChips(meta.demo_queries);
   }
@@ -654,10 +535,7 @@
     if (!resp.ok) throw new Error(`Failed to load graph.json (${resp.status})`);
     DATA = await resp.json();
 
-    nodeMap = new Map(DATA.nodes.map((n) => [n.id, n]));
-    pointers = new Map(Object.entries(DATA.pointers || {}));
     lines = DATA.lines || [];
-    answerLineSet = new Set(DATA.answer_line_idxs || []);
 
     initMeta();
     renderKnowledgeUpdate();

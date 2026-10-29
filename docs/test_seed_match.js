@@ -1,5 +1,6 @@
 /**
- * Simulates app.js tokenizer + seed matching against graph.json.
+ * Legacy reachability-only smoke check (duplicates the pre-v9 matching logic).
+ * Production ranking regressions: node --test docs/recall.test.js from repo root.
  * Run: node test_seed_match.js
  */
 "use strict";
