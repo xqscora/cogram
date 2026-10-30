@@ -1,0 +1,82 @@
+WEBVTT
+
+00:00:00.000 --> 00:00:04.453
+Cogram Relay is a collaboration workflow built on Cora Zeng's existing
+Cogram.
+
+00:00:04.453 --> 00:00:09.277
+It lets a teammate receive selected source evidence instead of an
+entire conversation.
+
+00:00:12.000 --> 00:00:15.824
+These are real excerpts from a public engineering trajectory corpus.
+
+00:00:15.824 --> 00:00:18.501
+Each retains its source file and line.
+
+00:00:18.501 --> 00:00:21.942
+A relevant investigation excerpt is not a confirmed fix.
+
+00:00:22.642 --> 00:00:27.044
+The sender selects two complete quotes and adds a next step.
+
+00:00:27.044 --> 00:00:31.046
+The JSON preview includes a snapshot identifier and integrity hash.
+
+00:00:31.046 --> 00:00:35.048
+Its actual serialized size is eight hundred fifty two bytes.
+
+00:00:35.048 --> 00:00:37.049
+No quote is silently truncated.
+
+00:00:37.749 --> 00:00:40.872
+A fresh workspace imports that exact preview file.
+
+00:00:40.872 --> 00:00:45.557
+The receiver checks source text and pointers against the same corpus
+snapshot.
+
+00:00:45.557 --> 00:00:49.851
+Two incoming sources are shown, while the local selection remains
+empty.
+
+00:00:51.749 --> 00:00:54.841
+Only choosing Adopt selection replaces the local evidence set.
+
+00:00:54.841 --> 00:00:59.652
+The receiver now has the same two source records and the sender's next
+step.
+
+00:01:01.749 --> 00:01:04.505
+Here a second file contains an altered quote.
+
+00:01:04.505 --> 00:01:08.294
+The import is rejected, and the two accepted records remain selected.
+
+00:01:08.294 --> 00:01:13.116
+A matching hash alone would not establish that a quote agrees with the
+corpus.
+
+00:01:13.816 --> 00:01:17.552
+Changing the investigation clears stale evidence and the next step.
+
+00:01:17.552 --> 00:01:23.529
+An unknown query returns no matching sources, and export stays
+disabled instead of inventing an answer.
+
+00:01:24.229 --> 00:01:27.229
+This prototype needs a shared public snapshot.
+
+00:01:27.229 --> 00:01:30.229
+Hashes prove neither authorship nor factual correctness.
+
+00:01:30.229 --> 00:01:34.086
+The new collaboration workflow builds on existing retrieval assets.
+
+00:01:34.086 --> 00:01:39.658
+Download completion was not independently verified; this demo imports
+the saved preview bytes.
+
+00:01:39.658 --> 00:01:45.229
+This is an edited browser walkthrough with synthetic narration, not a
+usability study.
