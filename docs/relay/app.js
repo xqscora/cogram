@@ -231,6 +231,9 @@
     const file = $("file").files[0];
     if (!file) return;
     const revision = ++importGeneration;
+    incoming = null;
+    renderIncoming();
+    status("Verifying incoming capsule. Local selection unchanged.");
     try {
       if (file.size > C.MAX_BYTES)
         throw new Error("Capsule exceeds the 128 KiB import limit.");
@@ -254,6 +257,7 @@
   });
   $("adopt").addEventListener("click", () => {
     if (!incoming) return;
+    ++importGeneration;
     currentQuery = incoming.query;
     $("query").value = currentQuery;
     tick = incoming.tick;
